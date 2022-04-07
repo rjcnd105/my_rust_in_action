@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 // for 문
 pub fn for_the_central_pillar_of_iteration() {
     let container = [1, 2, 3, 4];
@@ -96,11 +98,11 @@ pub fn rust_is_an_expression_based_language() {
     println!("{} is {}", n, description);
 
     // match
-    let descriptionMatch = match is_even(n) {
+    let description_match = match is_even(n) {
         true => "even",
         false => "odd",
     };
-    println!("matched: {} is {}", n, descriptionMatch);
+    println!("matched: {} is {}", n, description_match);
 
     let n = loop {
         // break도 값을 반환함
@@ -127,4 +129,42 @@ pub fn rust_is_an_expression_based_language() {
 
 fn is_even(n: i32) -> bool {
     n % 2 == 0 // 마지막 표현이 return 됨
+}
+
+// Generic
+// 그냥 T로 받으면 +가 있는지 알 수 없기 때문에, Add Trait을 구현하고 있는 애들만 받아야함.
+fn add<T: std::ops::Add<Output = T>>(i: T, j: T) -> T {
+    i + j
+}
+
+pub fn a_generic_function_with_a_type_variable_and_trait_bounds() {
+    let floats = add(1.2, 3.4);
+    let ints = add(10, 20);
+    let durations = add(Duration::new(5, 0), Duration::new(10, 0));
+
+    println!("floats {}", floats);
+    println!("ints {}", ints);
+    println!("durations {:?}", durations);
+}
+/* Result
+floats 4.6
+ints 30
+durations 15s
+*/
+
+// Lifetime parameters
+/*
+i에 `a의 라이프 사이클을 바인딩 한다.
+j에 `b의 라이프 사이클을 바인딩 한다.
+*/
+fn add_with_lifetimes<'a, 'b>(i: &'a i32, j: &'b i32) -> i32 {
+    *i + *j
+}
+
+fn lifetime() {
+    let a = 10;
+    let b = 20;
+    let res = add_with_lifetimes(&a, &b);
+
+    println!("{}", res);
 }
