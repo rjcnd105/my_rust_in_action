@@ -3,11 +3,11 @@
 // struct와 마찬가지로 impl로 메소드 구현 가능
 // constants 집합보다 강력함
 
-#[derive!(debug)]
-enum Event {
+#[derive(Debug)]
+pub enum Event {
     Update,
     Delete,
-    Unknown
+    Unknown,
 }
 
 type Message = String;
@@ -18,7 +18,7 @@ pub fn parse_log(line: &str) -> (Event, Message) {
     let parts: Vec<_> = line.splitn(2, ' ').collect();
 
     if parts.len() == 1 {
-        return (Event::Unknown, String::from(line))
+        return (Event::Unknown, String::from(line));
     }
 
     let event = parts[0];
@@ -27,10 +27,9 @@ pub fn parse_log(line: &str) -> (Event, Message) {
     match event {
         "UPDATE" | "update" => (Event::Update, rest),
         "DELETE" | "delete" => (Event::Delete, rest),
-        _ => (Event::Unknown, rest)
+        _ => (Event::Unknown, rest),
     }
 }
-
 
 enum Suit {
     Clubs,

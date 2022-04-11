@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["FileState",""]],"fn":[["close",""],["open",""],["report",""]],"struct":[["File",""]],"trait":[["Read",""]]});
