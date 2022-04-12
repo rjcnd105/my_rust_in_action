@@ -1,1 +1,0 @@
-/Users/hj/study/my_rust_in_action/packages/a_chapter1_2/target/debug/cahpter1_2: /Users/hj/study/my_rust_in_action/packages/a_chapter1_2/src/_2_10_list.rs /Users/hj/study/my_rust_in_action/packages/a_chapter1_2/src/_2_3_numbers.rs /Users/hj/study/my_rust_in_action/packages/a_chapter1_2/src/_2_4to8_flow_control.rs /Users/hj/study/my_rust_in_action/packages/a_chapter1_2/src/main.rs
