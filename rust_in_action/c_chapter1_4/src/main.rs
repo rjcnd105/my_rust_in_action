@@ -20,6 +20,10 @@ fn fetch_sat_ids() -> Vec<u64> {
 
 fn sat_message_step3() {
     // RC: Reference Counted
+    // borrow를 카운트하여, 여러개를 빌려줄 수 있고 빌려준 갯수를 알 수 있다.
+    // 기본적으로 변경 불가능이다. 왜냐하면 여러개를 빌려주는데 전부 변경되는게 좋지 않기 때문에,
+    // 하지만 변경하고 싶은 경우는 RefCell을 쓰면 된다. 단 그래도 mut borrow는 오직 1개만 존재 가능하다.
+
     // Rc<T>는 mutation을 허용하지 않기 때문에, RefCell로 감싸줘야만 가변적이게 된다.
     // Rc<T>는 스레드로부터 안전하지 않다.
     // 다중 스레드에서는 Arc<T>로, 가변은 Arc<Mutex<T>>로 바꾸는 것이 훨신 좋다.
@@ -35,6 +39,7 @@ fn sat_message_step3() {
 
     // 빌려주는 스코프를 지정
     {
+        // 오직 borrow_mut는 1개만 존재할 수 있다.
         let mut base_2 = base.borrow_mut();
         base_2.radio_freq -= 12.34;
         println!("base_2: {:?}", base_2);
