@@ -92,9 +92,9 @@ impl From<String> for HttpRequest {
 fn process_req_line(s: &str) -> (Method, Resource, Version) {
     // split_whitespace: 공백을 기준으로 Option(Some(), Nome) Iterator을 가진 SplitWhitespace 구조체를 반환
     let mut words = s.split_whitespace();
-    let mut method = words.next().unwrap();
-    let mut resource = words.next().unwrap();
-    let mut version = words.next().unwrap();
+    let method = words.next().unwrap();
+    let resource = words.next().unwrap();
+    let version = words.next().unwrap();
 
     // into()를 사용하면 받는쪽의 명시된 타입의 from이 호출된다... 엄청난 magic
     (method.into(), Resource::Path(resource.to_string()), version.into())
