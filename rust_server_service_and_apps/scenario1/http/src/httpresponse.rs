@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::fmt::Write;
+use std::io::{Result, Write};
 
 // 'a는 lifetime annotation
 // lifetime은 dangling pointers와 use-after-free 오류를 방지하기 위한 중요한 기능
@@ -25,13 +25,16 @@ impl<'a> Default for HttpResponse<'a> {
 }
 // Default traint을 구현하면 아래와 같이 사용할 수 있다.
 // let mut response = HttpResponse::default();
-
 impl<'a> HttpResponse<'a> {
-    pub fn new(status_code: &'a str, headers: Option<HashMap<&'a str, &'a str>>, body: Option<String>) -> HttpResponse<'a> {
+    pub fn new(
+        status_code: &'a str,
+        headers: Option<HashMap<&'a str, &'a str>>,
+        body: Option<String>,
+    ) -> HttpResponse<'a> {
         let mut response: HttpResponse<'a> = HttpResponse::default();
         if status_code != "200" {
             response.status_code = status_code.into();
-        }
+        };
         response.headers = match &headers {
             Some(_h) => headers,
             None => {
@@ -44,21 +47,21 @@ impl<'a> HttpResponse<'a> {
             "200" => "OK".into(),
             "400" => "Bad Request".into(),
             "404" => "Not Found".into(),
-            "500" => "internal server error".into(),
-            _ => "not found".into()
+            "500" => "Internal Server Error".into(),
+            _ => "Not Found".into(),
         };
-
         response.body = body;
-
         response
     }
-    pub fn send_response(&self, write_stream: &mut impl Write) -> Result<(), std::io::Error> {
+    pub fn send_response(&self, write_stream: &mut impl Write) -> Result<()> {
         let res = self.clone();
         let response_string: String = String::from(res);
         let _ = write!(write_stream, "{}", response_string);
         Ok(())
     }
+}
 
+impl<'a> HttpResponse<'a> {
     fn version(&self) -> &str {
         self.version
     }

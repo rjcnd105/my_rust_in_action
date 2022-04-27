@@ -1,6 +1,6 @@
 use super::handler::{Handler, PageNotFoundHandler, StaticPageHandler, WebServiceHandler};
 use http::{httprequest, httprequest::HttpRequest, httpresponse::HttpResponse};
-use std::io::prelude::*;
+use std::io::{Write};
 pub struct Router;
 
 /*

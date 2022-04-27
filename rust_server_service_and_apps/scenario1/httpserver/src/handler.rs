@@ -4,8 +4,11 @@ use std::collections::HashMap;
 use std::env;
 use std::fs;
 
+
 pub trait Handler {
+    // handle은 impl하는 곳에서 작성해줘야함
     fn handle(req: &HttpRequest) -> HttpResponse;
+    // load_file이 작성되어 있으므로 기본적으로 Handle을 impl하는 구조체들은 이 메소드를 물려받는다.
     fn load_file(file_name: &str) -> Option<String> {
         let default_path = format!("{}/public", env!("CARGO_MANIFEST_DIR"));
         let public_path = env::var("PUBLIC_PATH").unwrap_or(default_path);
@@ -13,5 +16,91 @@ pub trait Handler {
 
         let contents = fs::read_to_string(full_path);
         contents.ok()
+    }
+}
+
+// json 파일에서 읽은 데이터를 로드하는 데 사용되는 구조체
+#[derive(Serialize, Deserialize)]
+pub struct OrderStatus {
+    order_id: i32,
+    order_date: String,
+    order_status: String,
+}
+
+pub struct StaticPageHandler;
+
+pub struct PageNotFoundHandler;
+
+// api service handler
+pub struct WebServiceHandler;
+
+impl Handler for PageNotFoundHandler {
+    fn handle(req: &HttpRequest) -> HttpResponse {
+        HttpResponse::new("404", None, Self::load_file("404.html"))
+    }
+}
+
+impl Handler for StaticPageHandler {
+    fn handle(req: &HttpRequest) -> HttpResponse {
+        // Get the path of static page resource being requested
+        let http::httprequest::Resource::Path(s) = &req.resource;
+
+        // Parse the URI
+        let route: Vec<&str> = s.split("/").collect();
+        match route[1] {
+            "" => HttpResponse::new("200", None, Self::load_file("index.html")),
+            "health" => HttpResponse::new("200", None, Self::load_file("health.html")),
+            path => match Self::load_file(path) {
+                Some(contents) => {
+                    let mut map: HashMap<&str, &str> = HashMap::new();
+
+                    // Content-Type 에 대한 css, js, html 분기 처리
+                    if path.ends_with(".css") {
+                        map.insert("Content-Type", "text/css");
+                    } else if path.ends_with(".js") {
+                        map.insert("Content-Type", "text/javascript");
+                    } else {
+                        map.insert("Content-Type", "text/html");
+                    }
+                    HttpResponse::new("200", Some(map), Some(contents))
+                }
+                None => HttpResponse::new("404", None, Self::load_file("404.html")),
+            },
+        }
+    }
+}
+
+impl Handler for WebServiceHandler {
+    fn handle(req: &HttpRequest) -> HttpResponse {
+        // 이렇게 s값을 추출해서 사용할 수 있음
+        let http::httprequest::Resource::Path(s) = &req.resource;
+
+        // Parse the URI
+        let route: Vec<&str> = s.split("/").collect();
+
+        // if route if /api/shipping/orders, return json
+        match route[2] {
+            "shipping" if route.len() > 2 && route[3] == "orders" => {
+                // json을 load하여 body로 전달
+                let body = Some(serde_json::to_string(&Self::load_json()).unwrap());
+                let mut headers: HashMap<&str, &str> = HashMap::new();
+                headers.insert("Content-Type", "application/json");
+                HttpResponse::new("200", Some(headers), body)
+            }
+            _ => HttpResponse::new("404", None, Self::load_file("404.html")),
+        }
+    }
+}
+
+impl WebServiceHandler {
+    // orders.json 파일을 로드
+    fn load_json() -> Vec<OrderStatus> {
+        let default_path = format!("{}/data", env!("CARGO_MANIFEST_DIR"));
+        let data_path = env::var("DATA_PATH").unwrap_or(default_path);
+        let full_path= format!("{}/{}", data_path, "orders.json");
+        let json_contents = fs::read_to_string(full_path);
+        let orders: Vec<OrderStatus> =
+            serde_json::from_str(json_contents.unwrap().as_str()).unwrap();
+        orders
     }
 }
