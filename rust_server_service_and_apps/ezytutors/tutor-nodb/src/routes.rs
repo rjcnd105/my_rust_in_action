@@ -9,8 +9,8 @@ pub fn course_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         // /courses와 관련된 모든 api를 추가할 수 있는 새로운 리소스 범위를 생성함
         web::scope("/courses")
-            .route("/", web::post().to(new_course))
-            .route("/{user_id}", web::get().to(get_courses_for_tutor))
-            .route("/{user_id}/{course_id}", web::get().to(get_course_detail)),
+            .route("/", web::post().to(handlers::new_courses))
+            .route("/{user_id}", web::get().to(handlers::get_courses_for_tutor))
+            // .route("/{user_id}/{course_id}", web::get().to(handlers::get_course_detail)),
     );
 }

@@ -19,7 +19,7 @@ use state::AppState;
 #[actix_rt::main]
 async fn main() -> io::Result<()> {
     // 어플리케이션 상태 초기화
-    let shared_data = web::App::new(AppState {
+    let shared_data = web::Data::new(AppState {
         health_check_response: "i'm good. You've already asked me".to_string(),
         visit_count: Mutex::new(0),
         courses: Mutex::new(vec![])

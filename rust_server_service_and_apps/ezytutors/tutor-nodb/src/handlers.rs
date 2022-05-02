@@ -15,7 +15,25 @@ pub async fn health_check_handler(app_state: web::Data<AppState>) -> HttpRespons
     HttpResponse::Ok().json(&response)
 }
 
-pub async fn new_courses(new_course: web::Json<Course>, app_state: web::Data<AppState>) {
+pub async fn get_courses_for_tutor(app_state: web::Data<AppState>, params: web::Path<(usize)>,) -> HttpResponse {
+    let (tutor_id): usize = params.into_inner();
+
+    println!("tutor_id: {}", tutor_id);
+
+    let filtered_courses = app_state.courses
+        .lock().unwrap().clone()
+        .into_iter()
+        .filter(|course| course.tutor_id == tutor_id)
+        .collect::<Vec<Course>>(); // turbofish 라는 문법으로 타입을 지정해준다. typescript의 as 라고 보면 됌
+
+    if filtered_courses.len() > 0 {
+        HttpResponse::Ok().json(filtered_courses)
+    } else {
+        HttpResponse::Ok().json("No courses found for tutor")
+    }
+}
+
+pub async fn new_courses(new_course: web::Json<Course>, app_state: web::Data<AppState>) -> HttpResponse {
     println!("Received new course");
     let course_count_for_user = app_state.courses.lock()
         .unwrap()
@@ -33,13 +51,14 @@ pub async fn new_courses(new_course: web::Json<Course>, app_state: web::Data<App
     };
     // 앱 상태에 courses에 course 추가
     app_state.courses.lock().unwrap().push(new_course);
-    HttpResponse::Ok().json("Added course");
+    HttpResponse::Ok().json("Added course")
 }
 
 // #[cfg(test)]는 compile, run 때가 아닌 test명령시에만 실행하라는 의미
 #[cfg(test)]
 mod tests {
     use std::sync::Mutex;
+    use actix_web::http::StatusCode;
     use actix_web::web;
     use crate::handlers::new_courses;
     use crate::models::Course;
@@ -51,7 +70,7 @@ mod tests {
         let course = web::Json(Course {
             tutor_id: 1,
             course_id: None,
-            course_name: "Hello, thie is test course".into(),
+            course_name: "Hello, this is test course".into(),
             posted_time: None
         });
         let app_state: web::Data<AppState> = web::Data::new(AppState {
@@ -60,8 +79,9 @@ mod tests {
             courses: Mutex::new(vec![])
         });
         let resp = new_courses(course, app_state);
+        assert_eq!(resp.status(), StatusCode::OK)
     }
 
-    #[actix_rt::test]
-    async fn
+    // #[actix_rt::test]
+    // async fn
 }
