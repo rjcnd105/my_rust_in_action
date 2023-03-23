@@ -2,7 +2,7 @@ fn main() {
     println!("Hello, world!");
 }
 
-#[test]
+#[cfg(test)]
 mod test {
     use std::num::ParseIntError;
 
@@ -27,5 +27,23 @@ mod test {
 
         let res = try_to_parse2();
         println!("{:?}", res); // (Ok(123), Err(ParseIntError { kind: InvalidDigit }))
+    }
+
+    enum Message {
+        Quit,
+        Move { x: i32, y: i32 },
+        Write(String),
+        ChangeColor(i32, i32, i32),
+    }
+
+    #[test]
+    fn test_enum() {
+
+        let msg1 = Message::Move{ x: 0, y: 0 }; // Instantiating with x = 1, y = 2
+        let msg2 = Message::Write("dd".to_string()); // Instantiating with "hello, world!"
+
+
+        let line_as_string = String::from(line);
+        println!("Success!");
     }
 }
